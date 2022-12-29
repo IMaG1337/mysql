@@ -1,0 +1,59 @@
+use steam;
+-- скрипты характерных выборок (включающие группировки, JOIN'ы, вложенные таблицы);
+
+-- колличество мужчин и женщин нашего сервиса
+SELECT gender, count(*) as колличество
+from profiles p
+group by gender;
+
+-- никнеймы юзеров и их номера телефонов
+SELECT nickname, u.phone 
+from profiles p 
+left join users u 
+ON p.user_id = u.id;
+
+-- Наши юзеры и их продукты
+SELECT users_id, p.product_name as Название_продукта
+from library l 
+left join products p
+on l.products_id = p.id;
+
+SELECT * from products p ;
+SELECT * from genres g;
+SELECT * from genres_products gp ;
+
+-- находим игру с жанром "est"
+SELECT *
+from products p 
+WHERE p.id = (SELECT gp.product_id from genres_products gp WHERE gp.genres_id = 
+(SELECT id from genres g WHERE genre = 'est'));
+
+
+
+-- создаем представление продуктов с ценой меньше 150
+CREATE VIEW low_price 
+AS SELECT * FROM products p WHERE p.product_price < 150;
+
+SELECT * from low_price;
+
+-- создаем представление общее колличество сообщений
+CREATE view count_messages 
+as SELECT COUNT(*) as колличество
+from messages m;
+
+SELECT * from count_messages;
+
+
+
+DELIMITER //
+CREATE TRIGGER product_total AFTER INSERT ON products
+FOR EACH ROW
+BEGIN
+  SELECT COUNT(*) INTO @total FROM products p;
+END //
+DELIMITER;
+
+show TRIGGERS;
+SELECT * from products p ;
+INSERT into products values (11, 1, 'DOOM', 900, 4, 'WEW');
+SELECT @total;
